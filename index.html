@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Water Distribution Optimization</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script type="text/javascript" src="https://unpkg.com/vis-network@9.1.2/dist/vis-network.min.js"></script>
+    <link href="https://unpkg.com/vis-network@9.1.2/dist/vis-network.min.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <div class="header-left">
+                    <h1>💧 Water Distribution Optimization</h1>
+                    <p>Comprehensive Water Distribution & Real-world Applications</p>
+                </div>
+                <div class="header-right">
+                    <div class="user-info" id="userInfo">
+                        <span id="userEmail">Welcome!</span>
+                        <button class="logout-btn" onclick="logout()">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Logout
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <nav class="tab-navigation">
+            <button class="tab-btn active" onclick="showTab(event, 'dashboard')">📊 Dashboard</button>
+            <button class="tab-btn" onclick="showTab(event, 'water')">💧 Water Optimization</button>
+            <button class="tab-btn" onclick="showTab(event, 'dsa')">📊 Data Structures</button>
+            <button class="tab-btn" onclick="showTab(event, 'algorithms')">🔧 Algorithms</button>
+            <button class="tab-btn" onclick="showTab(event, 'demo')">🎯 Interactive Demo</button>
+            <button class="tab-btn" onclick="showTab(event, 'networkmap')">🗺️ Network Map</button>
+            <a href="owner_dashboard.html" class="tab-btn" target="_blank"><i class="fas fa-user-shield"></i> Owner Dashboard</a>
+        </nav>
+
+        <!-- Dashboard Tab -->
+        <div id="dashboard" class="tab-content active">
+            <main>
+                <div class="dashboard-section">
+                    <h2>📊 Dashboard Overview</h2>
+                    <div class="dashboard-cards">
+                        <div class="dashboard-card" id="card-locations">
+                            <h3>Total Locations</h3>
+                            <div class="dashboard-value" id="dashboardLocations">-</div>
+                        </div>
+                        <div class="dashboard-card" id="card-demand">
+                            <h3>Total Demand (L)</h3>
+                            <div class="dashboard-value" id="dashboardDemand">-</div>
+                        </div>
+                        <div class="dashboard-card" id="card-water">
+                            <h3>Total Water (L)</h3>
+                            <div class="dashboard-value" id="dashboardWater">-</div>
+                        </div>
+                        <div class="dashboard-card" id="card-allocated">
+                            <h3>Total Allocated (L)</h3>
+                            <div class="dashboard-value" id="dashboardAllocated">-</div>
+                        </div>
+                        <div class="dashboard-card" id="card-efficiency">
+                            <h3>Efficiency (%)</h3>
+                            <div class="dashboard-value" id="dashboardEfficiency">-</div>
+                        </div>
+                        <div class="dashboard-card" id="card-unmet">
+                            <h3>Unmet Demand (L)</h3>
+                            <div class="dashboard-value" id="dashboardUnmet">-</div>
+                        </div>
+                    </div>
+                    <div class="dashboard-mini-chart">
+                        <canvas id="dashboardChart"></canvas>
+                    </div>
+                    <div class="dashboard-links">
+                        <button onclick="showTab(event, 'water')">💧 Water Optimization</button>
+                        <button onclick="showTab(event, 'dsa')">📊 Data Structures</button>
+                        <button onclick="showTab(event, 'algorithms')">🔧 Algorithms</button>
+                        <button onclick="showTab(event, 'demo')">🎯 Interactive Demo</button>
+                        <button onclick="showTab(event, 'networkmap')">🗺️ Network Map</button>
+                    </div>
+                    <div class="dashboard-strategy">
+                        <h4>Last Optimization Strategy:</h4>
+                        <span id="dashboardStrategy">-</span>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- Water Distribution Tab -->
+        <div id="water" class="tab-content active">
+            <main>
+                <div class="input-section">
+                    <h2>Water Distribution Configuration</h2>
+                    <div class="form-group">
+                        <label for="locations">Number of Locations:</label>
+                        <input type="number" id="locations" min="2" max="10" value="3">
+                        <button onclick="generateLocationInputs()">Generate</button>
+                    </div>
+
+                    <!-- 3D Charts Section -->
+                    <div class="charts-section">
+                        <h3>Water Usage Distribution Visualization</h3>
+                        <div class="chart-container">
+                            <h4>Before Optimization</h4>
+                            <div id="pieChart"></div>
+                        </div>
+                        <div class="chart-container">
+                            <h4>After Optimization</h4>
+                            <div id="donutChart"></div>
+                        </div>
+                    </div>
+
+                    <style>
+                        .charts-section {
+                            margin: 20px 0;
+                        }
+                        .chart-container {
+                            display: inline-block;
+                            width: 48%;
+                            height: 400px;
+                            margin: 10px;
+                        }
+                        .chart-container h4 {
+                            margin-bottom: 10px;
+                            color: #333;
+                        }
+                    </style>
+
+                    <script>
+                        // Sample data for water usage distribution
+                        const sectors = ['Agriculture', 'Domestic', 'Industrial', 'Leak Loss'];
+                        const beforeOptimization = [45, 25, 20, 10];
+                        const afterOptimization = [40, 30, 25, 5];
+
+                        // Create 3D pie chart
+                        const pieData = [{
+                            values: beforeOptimization,
+                            labels: sectors,
+                            type: 'pie',
+                            hole: 0,
+                            textinfo: 'label+percent',
+                            textposition: 'inside',
+                            marker: {
+                                colors: ['#FFA07A', '#90EE90', '#ADD8E6', '#FFB6C1'],
+                                line: { color: '#ffffff', width: 2 }
+                            }
+                        }];
+
+                        const pieLayout = {
+                            title: 'Before Optimization',
+                            height: 400,
+                            width: 400,
+                            showlegend: true,
+                            legend: {
+                                x: 1.1,
+                                y: 1
+                            }
+                        };
+
+                        // Create 3D donut chart
+                        const donutData = [{
+                            values: afterOptimization,
+                            labels: sectors,
+                            type: 'pie',
+                            hole: 0.4,
+                            textinfo: 'label+percent',
+                            textposition: 'inside',
+                            marker: {
+                                colors: ['#FFA07A', '#90EE90', '#ADD8E6', '#FFB6C1'],
+                                line: { color: '#ffffff', width: 2 }
+                            }
+                        }];
+
+                        const donutLayout = {
+                            title: 'After Optimization',
+                            height: 400,
+                            width: 400,
+                            showlegend: true,
+                            legend: {
+                                x: 1.1,
+                                y: 1
+                            }
+                        };
+
+                        // Render the charts
+                        Plotly.newPlot('pieChart', pieData, pieLayout);
+                        Plotly.newPlot('donutChart', donutData, donutLayout);
+                    </script>
+                    
+                    <div id="locationInputs" class="location-inputs">
+                        <!-- Location inputs will be generated here -->
+                    </div>
+
+                    <div class="form-group">
+                        <label for="totalWater">Total Available Water (Liters):</label>
+                        <input type="number" id="totalWater" value="1000" min="100">
+                    </div>
+
+                    <button class="optimize-btn" onclick="optimizeDistribution()">💧 Optimize Distribution</button>
+                    <button class="stop-btn" onclick="stopOptimization()" style="margin-left: 12px; background: linear-gradient(135deg, #e74c3c, #c0392b); color: #fff; font-weight: 700; border: none; border-radius: 25px; padding: 12px 32px; cursor: pointer;">⏹️ Stop</button>
+                    <button class="print3d-btn" onclick="print3DGraph()" style="margin-left: 12px; background: linear-gradient(135deg, #2980b9, #6dd5fa); color: #fff; font-weight: 700; border: none; border-radius: 25px; padding: 12px 32px; cursor: pointer;">📊 3D Graph Only</button>
+                </div>
+
+                <div class="results-section">
+                    <h2>Optimization Results</h2>
+                    <div id="results" class="results">
+                        <p class="placeholder">Click "Optimize Distribution" to see results</p>
+                    </div>
+                </div>
+
+                <div class="visualization-section">
+                    <h2>Distribution Visualization</h2>
+                    <div id="chart" class="chart-container">
+                        <canvas id="distributionChart"></canvas>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- Data Structures Tab -->
+        <div id="dsa" class="tab-content">
+            <main>
+                <div class="dsa-section">
+                    <h2>📊 Water Optimization Parameter Analysis</h2>
+                    <div id="dsa3dPlot" style="width:100%;height:500px;"></div>
+                    <button id="acceptBtn" class="accept-btn">Accept</button>
+                </div>
+            </main>
+        </div>
+
+        <!-- Algorithms Tab -->
+        <div id="algorithms" class="tab-content">
+            <main>
+                <div class="algorithms-section">
+                    <h2>🔧 Algorithms Implementation</h2>
+                    
+                    <div class="algo-grid">
+                        <div class="algo-card">
+                            <h3>🔄 Sorting Algorithms</h3>
+                            <div class="algo-controls">
+                                <input type="text" id="sortArray" placeholder="Array (comma separated)" value="64,34,25,12,22,11,90">
+                                <button onclick="sortingDemo()">Test All Sorts</button>
+                            </div>
+                            <div id="sortOutput" class="algo-output"></div>
+                        </div>
+
+                        <div class="algo-card">
+                            <h3>🔍 Searching Algorithms</h3>
+                            <div class="algo-controls">
+                                <input type="text" id="searchArray" placeholder="Sorted Array" value="2,4,6,8,10,12,14,16,18,20">
+                                <input type="number" id="searchTarget" placeholder="Target" value="12">
+                                <button onclick="searchingDemo()">Test Searches</button>
+                            </div>
+                            <div id="searchOutput" class="algo-output"></div>
+                        </div>
+
+                        <div class="algo-card">
+                            <h3>🧮 Dynamic Programming</h3>
+                            <div class="algo-controls">
+                                <input type="number" id="fibN" placeholder="Fibonacci n" value="10">
+                                <button onclick="dpDemo()">Test DP</button>
+                            </div>
+                            <div id="dpOutput" class="algo-output"></div>
+                        </div>
+
+                        <div class="algo-card">
+                            <h3>🔢 Mathematical Algorithms</h3>
+                            <div class="algo-controls">
+                                <input type="number" id="mathA" placeholder="Number A" value="48">
+                                <input type="number" id="mathB" placeholder="Number B" value="18">
+                                <button onclick="mathDemo()">Test Math</button>
+                            </div>
+                            <div id="mathOutput" class="algo-output"></div>
+                        </div>
+
+                        <div class="algo-card">
+                            <h3>📝 String Algorithms</h3>
+                            <div class="algo-controls">
+                                <input type="text" id="stringText" placeholder="Text" value="AABAACAADAABAABA">
+                                <input type="text" id="stringPattern" placeholder="Pattern" value="AABA">
+                                <button onclick="stringDemo()">KMP Search</button>
+                            </div>
+                            <div id="stringOutput" class="algo-output"></div>
+                        </div>
+
+                        <div class="algo-card">
+                            <h3>🎯 Performance Analysis</h3>
+                            <div class="algo-controls">
+                                <input type="number" id="perfSize" placeholder="Array Size" value="1000">
+                                <button onclick="performanceDemo()">Benchmark</button>
+                            </div>
+                            <div id="perfOutput" class="algo-output"></div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- Interactive Demo Tab -->
+        <div id="demo" class="tab-content">
+            <div class="dashboard-layout">
+                <!-- Sidebar -->
+                <aside class="sidebar">
+                    <div class="sidebar-logo">
+                        <span class="logo-icon"><i class="fas fa-tint"></i></span>
+                        <span class="logo-text">WDO Tool</span>
+                    </div>
+                    <nav class="sidebar-nav">
+                        <ul>
+                            <li class="sidebar-item" onclick="showTab(event, 'dashboard')"><i class="fas fa-home"></i> Home</li>
+                            <li class="sidebar-item" onclick="showTab(event, 'water')"><i class="fas fa-tint"></i> Water Opt.</li>
+                            <li class="sidebar-item" onclick="showTab(event, 'dsa')"><i class="fas fa-database"></i> Data Struct.</li>
+                            <li class="sidebar-item" onclick="showTab(event, 'algorithms')"><i class="fas fa-cogs"></i> Algorithms</li>
+                            <li class="sidebar-item active"><i class="fas fa-bolt"></i> Active Demo</li>
+                        </ul>
+                    </nav>
+                </aside>
+                <!-- Main Content -->
+                <div class="dashboard-main">
+                    <!-- Header Bar -->
+                    <div class="dashboard-header demo-header-bg">
+                        <h2><i class="fas fa-bolt"></i> Active Demo</h2>
+                        <span class="dashboard-date">June 2024</span>
+                    </div>
+                    <!-- Live Info Card -->
+                    <div id="activeDemoInfo" class="network-map-info-card" style="margin-bottom: 18px;">
+                        <div class="network-map-info-row">
+                            <div class="network-map-info-item">
+                                <span class="network-map-info-label">Locations</span>
+                                <span class="network-map-info-value" id="activeDemoLocations">-</span>
+                            </div>
+                            <div class="network-map-info-item">
+                                <span class="network-map-info-label">Total Demand (L)</span>
+                                <span class="network-map-info-value" id="activeDemoDemand">-</span>
+                            </div>
+                            <div class="network-map-info-item">
+                                <span class="network-map-info-label">Allocated (L)</span>
+                                <span class="network-map-info-value" id="activeDemoAllocated">-</span>
+                            </div>
+                            <div class="network-map-info-item">
+                                <span class="network-map-info-label">Efficiency</span>
+                                <span class="network-map-info-value" id="activeDemoEfficiency">-</span>
+                            </div>
+                            <div class="network-map-info-item">
+                                <span class="network-map-info-label">Unmet Demand (L)</span>
+                                <span class="network-map-info-value" id="activeDemoUnmet">-</span>
+                            </div>
+                            <div class="network-map-info-item">
+                                <span class="network-map-info-label">Strategy</span>
+                                <span class="network-map-info-value" id="activeDemoStrategy">-</span>
+                            </div>
+                        </div>
+                        <div class="network-map-info-desc">
+                            <ul class="network-map-info-list">
+                                <li><span class="info-icon">💧</span> <b>Live Water Allocation:</b> See the current allocation of water to each location.</li>
+                                <li><span class="info-icon">📈</span> <b>Demand & Supply:</b> Track total demand, available water, and unmet needs in real time.</li>
+                                <li><span class="info-icon">⚙️</span> <b>Optimization Strategy:</b> View the latest strategy used for water distribution.</li>
+                                <li><span class="info-icon">✅</span> <b>Efficiency:</b> Instantly monitor how efficiently water is being distributed.</li>
+                                <li><span class="info-icon">🔔</span> <b>Unmet Demand:</b> Get notified of any locations with unmet water requirements.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <!-- Info Cards Row -->
+                    <div class="dashboard-cards-row">
+                        <div class="dashboard-card mini-card">
+                            <div class="mini-card-title">Total Demos</div>
+                            <div class="mini-card-value" id="demoTotal">6</div>
+                        </div>
+                        <div class="dashboard-card mini-card">
+                            <div class="mini-card-title">Last Run</div>
+                            <div class="mini-card-value" id="demoLastRun">-</div>
+                        </div>
+                        <div class="dashboard-card mini-card">
+                            <div class="mini-card-title">Success Rate</div>
+                            <div class="mini-card-value" id="demoSuccess">-</div>
+                        </div>
+                        <div class="dashboard-card mini-card">
+                            <div class="mini-card-title">Errors</div>
+                            <div class="mini-card-value" id="demoErrors">-</div>
+                        </div>
+                    </div>
+                    <!-- Chart Area -->
+                    <div class="dashboard-chart-area">
+                        <canvas id="demoChart"></canvas>
+                    </div>
+                    <!-- Controls and Output Cards -->
+                    <div class="dashboard-content-row">
+                        <div class="dashboard-card demo-controls-card">
+                            <div class="demo-controls">
+                                <button onclick="runAllDemos()" class="demo-btn">💧 Run All Demos</button>
+                                <button onclick="clearAllOutputs()" class="demo-btn">🗑️ Clear All</button>
+                            </div>
+                        </div>
+                        <div class="dashboard-card demo-output-card">
+                            <div class="demo-output-container">
+                                <div id="demoOutput" class="demo-output"></div>
+                            </div>
+                        </div>
+                        <div class="dashboard-card demo-features-card">
+                            <div class="demo-features">
+                                <h3>🎨 Demo Features:</h3>
+                                <ul>
+                                    <li>✅ All Data Structures with Visual Output</li>
+                                    <li>✅ All Algorithms with Performance Metrics</li>
+                                    <li>✅ Real-time Execution and Results</li>
+                                    <li>✅ Interactive Controls and Inputs</li>
+                                    <li>✅ Comprehensive Error Handling</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Network Map Tab -->
+        <div id="networkmap" class="tab-content">
+            <main>
+                <div class="algorithms-section">
+                    <h2>💧 Live Water Distribution Network Map</h2>
+                    <div id="networkMapInfo" class="network-map-info-card">
+                        <div class="network-map-info-row">
+                            <div class="network-map-info-item">
+                                <span class="network-map-info-label">Locations</span>
+                                <span class="network-map-info-value" id="networkMapLocations">-</span>
+                            </div>
+                            <div class="network-map-info-item">
+                                <span class="network-map-info-label">Total Demand (L)</span>
+                                <span class="network-map-info-value" id="networkMapDemand">-</span>
+                            </div>
+                            <div class="network-map-info-item">
+                                <span class="network-map-info-label">Allocated (L)</span>
+                                <span class="network-map-info-value" id="networkMapAllocated">-</span>
+                            </div>
+                            <div class="network-map-info-item">
+                                <span class="network-map-info-label">Efficiency</span>
+                                <span class="network-map-info-value" id="networkMapEfficiency">-</span>
+                            </div>
+                            <div class="network-map-info-item">
+                                <span class="network-map-info-label">Unmet Demand (L)</span>
+                                <span class="network-map-info-value" id="networkMapUnmet">-</span>
+                            </div>
+                            <div class="network-map-info-item">
+                                <span class="network-map-info-label">Strategy</span>
+                                <span class="network-map-info-value" id="networkMapStrategy">-</span>
+                            </div>
+                        </div>
+                        <div class="network-map-info-desc">
+                            <ul class="network-map-info-list">
+                                <li><span class="info-icon">🌐</span> <b>Live Visualization:</b> Real-time water allocation across all locations.</li>
+                                <li><span class="info-icon">🎨</span> <b>Node Color & Size:</b> Indicate the amount of water allocated to each location.</li>
+                                <li><span class="info-icon">🖱️</span> <b>Interactive:</b> Hover over nodes for detailed information.</li>
+                                <li><span class="info-icon">📊</span> <b>Performance Monitoring:</b> Instantly track and optimize your water distribution strategy.</li>
+                                <li><span class="info-icon">🌈</span> <b>Dynamic Network:</b> Enjoy a vibrant, animated background for a live network feel.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div id="networkMap" style="width:100%;height:600px;background:#fff;border-radius:16px;box-shadow:0 4px 24px rgba(52,152,219,0.08);"></div>
+                    <div id="networkLegend" style="margin-top:20px;text-align:center;"></div>
+                    <button class="accept-btn" onclick="acceptMap()">Accept</button>
+                </div>
+            </main>
+        </div>
+        </div>
+
+    <div class="side-info">
+            <p>💧 Water Distribution Optimization Tool | Built with HTML, CSS & JavaScript</p>
+            <p>📚 Comprehensive Water Distribution & Optimization Implementation</p>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="script.js"></script>
+</body>
+</html> 
