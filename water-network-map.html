@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Live Water Distribution Network Map</title>
+    <script type="text/javascript" src="https://unpkg.com/vis-network@9.1.2/dist/vis-network.min.js"></script>
+    <link href="https://unpkg.com/vis-network@9.1.2/dist/vis-network.min.css" rel="stylesheet" type="text/css" />
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 1100px;
+            margin: 40px auto;
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 8px 32px rgba(52, 152, 219, 0.15);
+            padding: 32px 32px 80px 32px;
+        }
+        h2 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+        #networkMap {
+            width: 100%;
+            height: 600px;
+            background: #f8f9fa;
+            border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(52,152,219,0.08);
+        }
+        #networkLegend {
+            font-size: 1.1rem;
+            margin-top: 20px;
+            text-align: center;
+        }
+        .accept-btn {
+            display: block;
+            margin: 40px auto 0 auto;
+            padding: 16px 48px;
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: #fff;
+            font-size: 1.2rem;
+            font-weight: 700;
+            border: none;
+            border-radius: 25px;
+            box-shadow: 0 4px 16px rgba(39, 174, 96, 0.15);
+            cursor: pointer;
+            transition: background 0.2s, transform 0.2s;
+        }
+        .accept-btn:hover {
+            background: linear-gradient(135deg, #219150, #27ae60);
+            transform: translateY(-2px) scale(1.04);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>💧 Live Water Distribution Network Map</h2>
+        <div id="networkMap"></div>
+        <div id="networkLegend"></div>
+        <button class="accept-btn" onclick="acceptMap()">Accept</button>
+    </div>
+    <script>
+        function renderWaterNetworkMap() {
+            const container = document.getElementById('networkMap');
+            if (!container) return;
+            container.innerHTML = '';
+
+            // Get results from localStorage
+            let results = null;
+            if (localStorage.getItem('latestOptimizationResults')) {
+                results = JSON.parse(localStorage.getItem('latestOptimizationResults'));
+            }
+            if (!results || !results.locations || !results.locations.length) {
+                container.innerHTML = '<div style="text-align:center;padding:40px;">No water optimization results available.<br>Run an optimization in the Water Optimization tab first.</div>';
+                document.getElementById('networkLegend').innerHTML = '';
+                return;
+            }
+
+            // Simulate a grid network for demo (or use your real network structure if available)
+            const locations = results.locations;
+            const nodes = [];
+            const edges = [];
+            const gridCols = Math.ceil(Math.sqrt(locations.length));
+            const gridRows = Math.ceil(locations.length / gridCols);
+
+            // Color scale for allocation/pressure
+            function getColor(val) {
+                if (val < 0.25) return '#00b300'; // green
+                if (val < 0.5) return '#e6e600'; // yellow
+                if (val < 0.75) return '#ff9900'; // orange
+                return '#e60000'; // red
+            }
+
+            // Find min/max for scaling
+            const allocs = locations.map(l => l.allocated);
+            const minAlloc = Math.min(...allocs);
+            const maxAlloc = Math.max(...allocs);
+
+            // Create nodes
+            locations.forEach((loc, i) => {
+                // Normalize allocation for color
+                const norm = (loc.allocated - minAlloc) / (maxAlloc - minAlloc || 1);
+                nodes.push({
+                    id: i,
+                    label: loc.name + '\n' + loc.allocated.toFixed(1) + 'L',
+                    color: { background: getColor(norm), border: '#333' },
+                    shape: 'dot',
+                    size: 20 + 20 * norm
+                });
+            });
+
+            // Create edges (simple grid for demo)
+            for (let i = 0; i < locations.length; i++) {
+                if (i % gridCols !== gridCols - 1 && i + 1 < locations.length) {
+                    edges.push({ from: i, to: i + 1 });
+                }
+                if (i + gridCols < locations.length) {
+                    edges.push({ from: i, to: i + gridCols });
+                }
+            }
+
+            // vis.js network
+            const data = { nodes: new vis.DataSet(nodes), edges: new vis.DataSet(edges) };
+            const options = {
+                nodes: { font: { size: 14, color: '#222' } },
+                edges: { color: '#bbb', width: 2, smooth: false },
+                physics: { enabled: false }
+            };
+            new vis.Network(container, data, options);
+
+            // Legend
+            document.getElementById('networkLegend').innerHTML = `
+                <b>Legend (Allocated Water):</b>
+                <span style="color:#00b300;">●</span> Low
+                <span style="color:#e6e600;">●</span> Medium
+                <span style="color:#ff9900;">●</span> High
+                <span style="color:#e60000;">●</span> Very High
+            `;
+        }
+
+        // Accept button handler
+        function acceptMap() {
+            alert('Map accepted!');
+        }
+
+        // Render on load and whenever localStorage changes (if supported)
+        window.addEventListener('DOMContentLoaded', renderWaterNetworkMap);
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'latestOptimizationResults') renderWaterNetworkMap();
+        });
+    </script>
+</body>
+</html> 
