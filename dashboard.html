@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern DSA Dashboard</title>
+    <link rel="stylesheet" href="dashboard-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fas fa-cube"></i>
+                    <span>DSA Hub</span>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <ul>
+                    <li class="nav-item active">
+                        <a href="#dashboard" class="nav-link">
+                            <i class="fas fa-tachometer-alt"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#files" class="nav-link">
+                            <i class="fas fa-folder"></i>
+                            <span>Files</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#analytics" class="nav-link">
+                            <i class="fas fa-chart-line"></i>
+                            <span>Analytics</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#processing" class="nav-link">
+                            <i class="fas fa-cogs"></i>
+                            <span>Processing</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#reports" class="nav-link">
+                            <i class="fas fa-file-alt"></i>
+                            <span>Reports</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <div class="avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="user-info">
+                        <span class="username">User</span>
+                        <span class="status">Online</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Top Header -->
+            <header class="top-header">
+                <div class="header-left">
+                    <button class="menu-toggle" id="menuToggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h1 class="page-title">Dashboard</h1>
+                </div>
+                
+                <div class="header-right">
+                    <div class="search-bar">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="Search files, data...">
+                    </div>
+                    
+                    <div class="header-actions">
+                        <button class="action-btn" title="Notifications">
+                            <i class="fas fa-bell"></i>
+                            <span class="badge">3</span>
+                        </button>
+                        <button class="action-btn" title="Settings">
+                            <i class="fas fa-cog"></i>
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard Content -->
+            <div class="dashboard-content">
+                <!-- Quick Stats Cards -->
+                <section class="stats-section">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-file-alt"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 class="stat-value" id="totalFiles">0</h3>
+                                <p class="stat-label">Total Files</p>
+                                <div class="stat-trend positive">
+                                    <i class="fas fa-arrow-up"></i>
+                                    <span>12%</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-database"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 class="stat-value" id="totalSize">0 KB</h3>
+                                <p class="stat-label">Total Size</p>
+                                <div class="stat-trend positive">
+                                    <i class="fas fa-arrow-up"></i>
+                                    <span>8%</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 class="stat-value" id="lastModified">-</h3>
+                                <p class="stat-label">Last Modified</p>
+                                <div class="stat-trend neutral">
+                                    <i class="fas fa-minus"></i>
+                                    <span>0%</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-layer-group"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 class="stat-value" id="fileTypes">0</h3>
+                                <p class="stat-label">File Types</p>
+                                <div class="stat-trend positive">
+                                    <i class="fas fa-arrow-up"></i>
+                                    <span>5%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- File Management Section -->
+                <section class="file-management-section">
+                    <div class="section-header">
+                        <h2>File Management</h2>
+                        <div class="section-actions">
+                            <button class="btn btn-secondary" onclick="clearFiles()">
+                                <i class="fas fa-trash"></i>
+                                Clear All
+                            </button>
+                            <button class="btn btn-primary" onclick="exportData()">
+                                <i class="fas fa-download"></i>
+                                Export
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="file-upload-area">
+                        <div class="upload-zone" id="uploadZone">
+                            <div class="upload-content">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <h3>Drop files here or click to browse</h3>
+                                <p>Support for .txt, .json, .csv, and other text files</p>
+                                <input type="file" id="fileInput" accept=".txt,.json,.csv" multiple hidden>
+                                <button class="btn btn-outline" onclick="document.getElementById('fileInput').click()">
+                                    Choose Files
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="upload-actions">
+                            <button class="btn btn-success btn-large" id="acceptBtn" onclick="acceptFiles()">
+                                <i class="fas fa-check"></i>
+                                Accept & Process Files
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="file-list-container">
+                        <div class="file-list-header">
+                            <h3>Selected Files</h3>
+                            <span class="file-count" id="fileCount">0 files</span>
+                        </div>
+                        <div class="file-list" id="fileList">
+                            <div class="empty-state">
+                                <i class="fas fa-folder-open"></i>
+                                <p>No files selected</p>
+                                <span>Select files to get started</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Processing & Analytics Section -->
+                <div class="content-grid">
+                    <section class="processing-section">
+                        <div class="section-header">
+                            <h2>Data Processing</h2>
+                        </div>
+                        
+                        <div class="processing-controls">
+                            <button class="btn btn-primary" onclick="processData()">
+                                <i class="fas fa-play"></i>
+                                Process Data
+                            </button>
+                            <button class="btn btn-info" onclick="analyzeData()">
+                                <i class="fas fa-chart-bar"></i>
+                                Analyze
+                            </button>
+                            <button class="btn btn-warning" onclick="generateReport()">
+                                <i class="fas fa-file-alt"></i>
+                                Generate Report
+                            </button>
+                        </div>
+                        
+                        <div class="processing-status">
+                            <div class="status-indicator">
+                                <div class="status-dot" id="statusDot"></div>
+                                <span id="statusText">Ready to process</span>
+                            </div>
+                            <div class="progress-container">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="progressFill"></div>
+                                </div>
+                                <span class="progress-text" id="progressText">0%</span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="preview-section">
+                        <div class="section-header">
+                            <h2>File Preview</h2>
+                            <select id="previewSelect" onchange="updatePreview()" class="preview-select">
+                                <option value="">Select a file</option>
+                            </select>
+                        </div>
+                        
+                        <div class="preview-container">
+                            <div class="preview-header">
+                                <span class="preview-title">File Content</span>
+                                <div class="preview-actions">
+                                    <button class="btn btn-sm btn-outline" onclick="copyPreview()">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline" onclick="downloadPreview()">
+                                        <i class="fas fa-download"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="preview-content">
+                                <pre id="filePreview" class="file-preview">No file selected for preview</pre>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- Results Section -->
+                <section class="results-section">
+                    <div class="section-header">
+                        <h2>Processing Results</h2>
+                        <div class="section-actions">
+                            <button class="btn btn-sm btn-outline" onclick="clearResults()">
+                                <i class="fas fa-times"></i>
+                                Clear
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="results-container">
+                        <div id="resultsContent" class="results-content">
+                            <div class="empty-state">
+                                <i class="fas fa-chart-line"></i>
+                                <p>No results to display</p>
+                                <span>Process data to see results</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Notification System -->
+    <div id="notificationArea" class="notification-area"></div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay hidden">
+        <div class="loading-spinner">
+            <div class="spinner"></div>
+            <p>Processing files...</p>
+        </div>
+    </div>
+
+    <script src="dashboard-script.js"></script>
+</body>
+</html> 
